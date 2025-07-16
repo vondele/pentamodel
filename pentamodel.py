@@ -110,6 +110,17 @@ class PentaModel:
         """
         return 400 * log10(1 / match_score - 1)
 
+    @staticmethod
+    def pentonomial_to_score(match_pentanomial):
+        score = (
+            match_pentanomial[0] * 0
+            + match_pentanomial[1] * 0.5
+            + match_pentanomial[2] * 1
+            + match_pentanomial[3] * 1.5
+            + match_pentanomial[4] * 2
+        ) / (sum(match_pentanomial) * 2)
+        return score
+
     def fix_s_from_Elo(self, Elo):
         """
         Find the shift s that matches a given Elo difference using bisection.
@@ -120,9 +131,9 @@ class PentaModel:
         Returns:
             float: Shift value s.
         """
-        assert Elo > -300 and Elo < 300, "Elo must be between -300 and 300"
-        s_lower = -200
-        s_upper = 200
+        assert Elo > -600 and Elo < 600, f"Elo {Elo} must be between -600 and 600"
+        s_lower = -600
+        s_upper = 600
         # Bisection search to find s value for desired Elo difference
         while s_upper - s_lower > 0.0000001:
             s_mid = (s_lower + s_upper) / 2
@@ -247,14 +258,9 @@ if __name__ == "__main__":
     rounds = 100000
     match_pentanomial = p.return_match_pentanomial(rounds)
     pprint(match_pentanomial)
-    score = (
-        match_pentanomial[0] * 0
-        + match_pentanomial[1] * 0.5
-        + match_pentanomial[2] * 1
-        + match_pentanomial[3] * 1.5
-        + match_pentanomial[4] * 2
+    print(
+        f"Elo diff from score {p.elo_diff_from_score(p.pentonomial_to_score(match_pentanomial)):.2f} Elo"
     )
-    print(f"Elo diff from score {p.elo_diff_from_score(score / (rounds * 2)):.2f} Elo")
 
     # Plot the relationship between book exit value v and win/loss/draw probabilities
     v_values = np.linspace(-400, 400, 200)
